@@ -1,0 +1,34 @@
+{
+  "name": "Örnek NuvioTR Plugin Deposu",
+  "version": "1.0.0",
+  "description": "Katalog, arama, yayın ve yorum giriş noktaları içeren NuvioTR JS plugin şablonu.",
+  "author": "manitux",
+  "scrapers": [
+    {
+      "id": "plugin-example",
+      "name": "Örnek NuvioTR Plugin",
+      "description": "Katalog, arama, yayın ve yorum yeteneklerini sunar.",
+      "version": "1.0.0",
+      "filename": "example.js",
+      "supportedTypes": ["movie", "tv"],
+      "enabled": true,
+      "supportsStreams": true,
+      "supportsSearch": true,
+      "supportsComments": true,
+      "catalogs": [
+        {
+          "id": "featured-movies",
+          "name": "Öne çıkan filmler",
+          "type": "movie",
+          "supportsPagination": true
+        },
+        {
+          "id": "featured-series",
+          "name": "Öne çıkan diziler",
+          "type": "series",
+          "supportsPagination": true
+        }
+      ]
+    }
+  ]
+}
