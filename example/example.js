@@ -77,7 +77,7 @@ async function search({ query, language }) {
 }
 
 async function getStreams(id, mediaType, season, episode) {
-  // Gelen isteğin bu pluginin kataloğundan mı yoksa tmdb id ile mi geldiğini kontrol edin
+  // Gelen isteğin bu pluginin kataloğundan mı yoksa genelden mi geldiğini kontrol edin
   // Bu fonksiyonun gerçek davranışı için rarefilm plugini kontrol edin
   if (String(id).startsWith("example:") && !id) return [];
 
