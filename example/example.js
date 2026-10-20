@@ -50,14 +50,6 @@ function allItems() {
   return movieItems.concat(seriesItems, moviePageTwoItems, seriesPageTwoItems);
 }
 
-// Nuvio ayrıntı sayfasından gelen kimliği yalnızca bu eklentinin biçimindeyse
-// kabul eder. Gerçek bir sağlayıcıda buradaki opak anahtar, sağlayıcının
-// ayrıntı sayfası URL'sine veya kendi içerik kaydına çevrilir.
-function itemFromContentId(contentId) {
-  const id = String(contentId || "");
-  if (!/^example:(?:movie|series):\d+$/.test(id)) return undefined;
-  return allItems().find((item) => item.id === id);
-}
 
 async function getCatalog({ catalogId, type, pageToken, language }) {
   // `pageToken` opaktır: ofset olarak değil, yalnızca arama anahtarı olarak kullanın.
@@ -85,10 +77,9 @@ async function search({ query, language }) {
 }
 
 async function getStreams(id, mediaType, season, episode) {
-  // Eklentinin kendi katalog öğesi `example:` kimliğiyle gelir; geçersizse
-  // işlem yapılmaz. Diğer isteklerde id TMDB veya IMDb kimliği olabilir.
-  // Gerçek sağlayıcı, bu iki yolu kendi arama/ayrıntı çözümlemesine bağlar.
-  if (String(id).startsWith("example:") && !itemFromContentId(id)) return [];
+  // Gelen isteğin bu pluginin kataloğundan mı yoksa tmdb id ile mi geldiğini kontrol edin
+  // Bu fonksiyonun gerçek davranışı için rarefilm plugini kontrol edin
+  if (String(id).startsWith("example:") && !id) return [];
 
   return [];
 }
