@@ -1,6 +1,10 @@
 const movieItems = [
   {
-    id: "example-movie-278",
+    // `id`, Nuvio'nun ayrıntı sayfası URL'sine gönderilir. `example:` öneki
+    // bu kimliğin bu plugine ait olduğunu belirtir; devamındaki değer eklentinin
+    // kendi opak içerik anahtarıdır. Bu sayede başka pluginlerdeki kimliklerle
+    // çakışmaz ve getStreams/comments çağrılarında güvenle kullanılabilir.
+    id: "example:movie:278",
     name: "Esaretin Bedeli",
     type: "movie",
     year: 1994,
@@ -11,7 +15,7 @@ const movieItems = [
 
 const seriesItems = [
   {
-    id: "example-series-1399",
+    id: "example:series:1399",
     name: "Taht Oyunları",
     type: "series",
     year: 2011,
@@ -22,7 +26,7 @@ const seriesItems = [
 
 const moviePageTwoItems = [
   {
-    id: "example-movie-680",
+    id: "example:movie:680",
     name: "Ucuz Roman",
     type: "movie",
     year: 1994,
@@ -33,7 +37,7 @@ const moviePageTwoItems = [
 
 const seriesPageTwoItems = [
   {
-    id: "example-series-1402",
+    id: "example:series:1402",
     name: "Yürüyen Ölüler",
     type: "series",
     year: 2010,
@@ -41,6 +45,19 @@ const seriesPageTwoItems = [
     externalIds: { tmdbId: "1402", imdbId: "tt1520211" }
   }
 ];
+
+function allItems() {
+  return movieItems.concat(seriesItems, moviePageTwoItems, seriesPageTwoItems);
+}
+
+// Nuvio ayrıntı sayfasından gelen kimliği yalnızca bu eklentinin biçimindeyse
+// kabul eder. Gerçek bir sağlayıcıda buradaki opak anahtar, sağlayıcının
+// ayrıntı sayfası URL'sine veya kendi içerik kaydına çevrilir.
+function itemFromContentId(contentId) {
+  const id = String(contentId || "");
+  if (!/^example:(?:movie|series):\d+$/.test(id)) return undefined;
+  return allItems().find((item) => item.id === id);
+}
 
 async function getCatalog({ catalogId, type, pageToken, language }) {
   // `pageToken` opaktır: ofset olarak değil, yalnızca arama anahtarı olarak kullanın.
@@ -61,22 +78,27 @@ async function search({ query, language }) {
   const normalizedQuery = String(query || "").trim().toLowerCase();
   if (!normalizedQuery) return { items: [] };
 
-  const items = movieItems.concat(seriesItems, moviePageTwoItems, seriesPageTwoItems).filter((item) =>
+  const items = allItems().filter((item) =>
     item.name.toLowerCase().includes(normalizedQuery)
   );
   return { items };
 }
 
-async function getStreams(contentId, mediaType, season, episode, url) {
-  // Standart getStreams fonksiyonu
+async function getStreams(id, mediaType, season, episode) {
+  // Eklentinin kendi katalog öğesi `example:` kimliğiyle gelir; geçersizse
+  // işlem yapılmaz. Diğer isteklerde id TMDB veya IMDb kimliği olabilir.
+  // Gerçek sağlayıcı, bu iki yolu kendi arama/ayrıntı çözümlemesine bağlar.
+  if (String(id).startsWith("example:") && !itemFromContentId(id)) return [];
+
   return [];
 }
 
 async function comments({ contentId, url, type, pageToken, language }) {
   // `contentId`, `url` ve `type`, bu eklentinin sahip olduğu katalog öğesini
   // tanımlar. İlk istekte `pageToken` null olur, sonraki değerler opaktır.
-  // { comments: [{ id, author, text }], nextPageToken } döndürün.
-  if (contentId !== "example-movie-278") return { comments: [] };
+  // { comments: [{ id, author, text }], nextPageToken } döndürün. 
+  const item = itemFromContentId(contentId);
+  if (!item || item.id !== "example:movie:278") return { comments: [] };
 
   if (pageToken == null) {
     return {
